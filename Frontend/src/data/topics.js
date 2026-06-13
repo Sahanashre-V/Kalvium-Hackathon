@@ -1348,7 +1348,10 @@ export function getTopicRecord(topic) {
 }
 
 export function getTopicRoadmap(topic) {
-  return getTopicRecord(topic).roadmap
+  return getTopicRecord(topic).roadmap.map((item) => ({
+    ...item,
+    lessonId: item.lessonId || item.id,
+  }))
 }
 
 export function getTopicLesson(topic, lessonId) {

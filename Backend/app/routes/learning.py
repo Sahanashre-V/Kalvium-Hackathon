@@ -20,6 +20,8 @@ from app.schemas.learning import (
     TopicSelectResponse,
 )
 from app.services.learning_flow import LearningFlowError, LearningFlowService
+from app.dependencies import get_current_user
+from app.models import User
 
 
 router = APIRouter(tags=["learning-flow"])
@@ -31,8 +33,9 @@ def _handle_error(error: LearningFlowError) -> None:
 
 
 @router.post("/topic/select", response_model=TopicSelectResponse)
-def select_topic(payload: TopicSelectRequest, db: DbSession = Depends(get_db)):
+def select_topic(payload: TopicSelectRequest, db: DbSession = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
+        payload.user_id = current_user.id
         return service.select_topic(db, payload)
     except LearningFlowError as error:
         _handle_error(error)

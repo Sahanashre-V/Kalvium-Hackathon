@@ -39,7 +39,7 @@ const featureCopy = [
 
 function LandingPage() {
   const navigate = useNavigate()
-  const { selectedTopic, setSelectedTopic } = useTopic()
+  const { selectedTopic, setSelectedTopic, startSession } = useTopic()
   const [topic, setTopic] = useState(selectedTopic)
 
   const pickTopic = (value) => {
@@ -47,9 +47,15 @@ function LandingPage() {
     setSelectedTopic(value)
   }
 
-  const startLearning = () => {
+  const startLearning = async () => {
     const resolvedTopic = TOPIC_OPTIONS.includes(topic.trim()) ? topic.trim() : selectedTopic
-    pickTopic(resolvedTopic || TOPIC_OPTIONS[0])
+    const chosen = resolvedTopic || TOPIC_OPTIONS[0]
+    pickTopic(chosen)
+    try {
+      await startSession(chosen)
+    } catch (err) {
+      console.error('startSession failed', err)
+    }
     navigate('/assessment')
   }
 
@@ -167,7 +173,10 @@ function LandingPage() {
               description={topicItem.description}
               status={topicItem.status}
               meta="Tap to select"
-              onClick={() => pickTopic(topicItem.title)}
+              onClick={() => {
+                pickTopic(topicItem.title)
+                navigate('/roadmap')
+              }}
             />
           ))}
         </div>

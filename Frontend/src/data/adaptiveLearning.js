@@ -196,7 +196,7 @@ export function getLessonCompletionStats(modeProgress = {}, totalLessonCount = O
     (sum, lessonState) => sum + (lessonState?.videos?.length || 0),
     0,
   )
-  const totalVideos = totalLessonCount * 3
+  const totalVideos = totalLessonCount
 
   return {
     readProgress: Math.round((readLessons / totalLessonCount) * 100) || 0,

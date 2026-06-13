@@ -13,6 +13,8 @@ from app.routes import (
     sessions_router,
     users_router,
 )
+from fastapi.middleware.cors import CORSMiddleware
+from app.routes.auth import router as auth_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +22,15 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Kalvium Hackathon Backend",
     version="0.1.0",
+)
+
+# Allow frontend dev server origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -35,6 +46,7 @@ def health_check():
 
 app.include_router(users_router, prefix="/api")
 app.include_router(learning_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 app.include_router(sessions_router, prefix="/api")
 app.include_router(assessments_router, prefix="/api")
 app.include_router(analyses_router, prefix="/api")

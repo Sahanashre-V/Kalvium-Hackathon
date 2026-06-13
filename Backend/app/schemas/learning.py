@@ -16,6 +16,10 @@ class TopicSelectResponse(BaseModel):
     topic: str
     normalized_topic: str
     available_topics: list[str]
+    # Optional pre-assessment returned when a session is created
+    assessment_id: int | None = None
+    total_questions: int | None = None
+    questions: list[dict[str, Any]] | None = None
 
 
 class AssessmentGenerateRequest(BaseModel):

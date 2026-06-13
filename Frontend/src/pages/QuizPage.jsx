@@ -25,7 +25,9 @@ function QuizPage() {
 
   const lessonId = selectedLesson || getDefaultLessonForTopic(selectedTopic)
   const lesson = getLesson(selectedTopic, lessonId)
-  const quizUnlocked = isLessonCheckpointComplete(selectedTopic, lessonId)
+  // Allow quizzes to be available immediately for core demo topics (DSA, Machine Learning)
+  const coreAlwaysUnlocked = ['DSA', 'Machine Learning']
+  const quizUnlocked = coreAlwaysUnlocked.includes(selectedTopic) || isLessonCheckpointComplete(selectedTopic, lessonId)
   const quizzes = useMemo(() => getQuizSet(selectedTopic, lessonId), [selectedTopic, lessonId])
   const question = quizzes[currentIndex]
   const hasAnswered = selectedIndex !== null
