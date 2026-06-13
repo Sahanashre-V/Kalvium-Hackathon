@@ -24,7 +24,11 @@ function RoadmapPage() {
     return () => window.clearTimeout(timer)
   }, [selectedTopic])
 
-  const openLesson = (lessonId) => {
+  const getModuleLessonId = (step) => step?.lessonId || step?.id
+
+  const openLesson = (stepOrLessonId) => {
+    const lessonId = typeof stepOrLessonId === 'string' ? stepOrLessonId : getModuleLessonId(stepOrLessonId)
+    if (!lessonId) return
     setSelectedLesson(lessonId)
     navigate(getLessonPath(selectedTopic, lessonId))
   }
@@ -50,7 +54,7 @@ function RoadmapPage() {
         ]}
         title={`Vertical timeline for ${selectedTopic}`}
         description="Each card shows the learner's confidence level and the sequence of concepts to cover next."
-        action={<Button onClick={() => openLesson(recommended.lessonId)}>Start Learning</Button>}
+        action={<Button onClick={() => openLesson(recommended)}>Start Learning</Button>}
       />
 
       <div className="rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
@@ -76,13 +80,13 @@ function RoadmapPage() {
             title={step.title}
             description={step.description}
             status={step.status}
-            onClick={() => openLesson(step.lessonId)}
+            onClick={() => openLesson(step)}
           />
         ))}
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => openLesson(recommended.lessonId)} size="lg">
+        <Button onClick={() => openLesson(recommended)} size="lg">
           Start Learning
         </Button>
       </div>

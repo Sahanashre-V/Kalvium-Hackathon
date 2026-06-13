@@ -10,13 +10,13 @@ import { setStoredAssessment } from '../utils/storage'
 
 function AssessmentPage() {
   const navigate = useNavigate()
-  const { selectedTopic } = useTopic()
+  const { selectedTopic, currentAssessment } = useTopic()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
-  const questions = useMemo(() => getAssessmentQuestions(selectedTopic), [selectedTopic])
+  const questions = useMemo(() => currentAssessment?.questions || getAssessmentQuestions(selectedTopic), [currentAssessment, selectedTopic])
   const profile = useMemo(() => getTopicStats(selectedTopic), [selectedTopic])
   const currentQuestion = questions[currentIndex]
   const progress = Math.round(((currentIndex + 1) / questions.length) * 100)

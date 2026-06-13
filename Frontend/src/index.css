@@ -50,3 +50,21 @@ select {
     @apply border border-white/10 bg-white/6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl;
   }
 }
+
+/* Theme variables */
+/* Dark-only theme variables and defaults */
+:root {
+  --la-bg-dark: radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 28%), radial-gradient(circle at top right, rgba(45, 212, 191, 0.14), transparent 24%), linear-gradient(180deg, #0a1120 0%, #070b14 44%, #05070d 100%);
+  --la-text-dark: #f8fafc;
+  --la-surface-dark: rgba(255,255,255,0.06);
+  --la-border-dark: rgba(255,255,255,0.08);
+}
+
+body {
+  background: var(--la-bg-dark);
+  color: var(--la-text-dark);
+}
+
+/* glass-panel (dark) */
+.glass-panel { border: var(--la-border-dark); background: var(--la-surface-dark); }
+

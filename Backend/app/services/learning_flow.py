@@ -4,6 +4,7 @@ from typing import Any
 from sqlalchemy.orm import Session as DbSession
 
 from app.models import Analysis, Assessment, Lesson, Progress, Quiz, Roadmap, Session, User
+from app.services.ai_analysis_service import analyze_assessment
 from app.schemas.learning import (
     AssessmentGenerateRequest,
     AssessmentSubmitRequest,
@@ -60,13 +61,35 @@ class LearningFlowService:
         db.add(session)
         db.commit()
         db.refresh(session)
+        # Auto-generate a lightweight pre-assessment for the session
+        try:
+            questions = ASSESSMENT_QUESTIONS.get(domain, [])
+            assessment = Assessment(
+                session_id=session.id,
+                topic=session.topic,
+                questions_json=questions,
+                answers_json=None,
+                score=None,
+            )
+            db.add(assessment)
+            db.commit()
+            db.refresh(assessment)
+            assessment_payload = {
+                "assessment_id": assessment.id,
+                "total_questions": len(questions),
+                "questions": [_public_question(q) for q in questions],
+            }
+        except Exception:
+            assessment_payload = {"assessment_id": None, "total_questions": None, "questions": None}
+
         return {
             "status": "success",
             "message": f"{domain} learning session created",
             "session_id": session.id,
             "topic": domain,
             "normalized_topic": _slug(domain),
-            "available_topics": TOPIC_ORDER[domain],
+            "available_topics": TOPIC_ORDER.get(domain, []),
+            **assessment_payload,
         }
 
     def generate_assessment(self, db: DbSession, payload: AssessmentGenerateRequest) -> dict[str, Any]:
@@ -409,33 +432,81 @@ class LearningFlowService:
         assessment: Assessment,
         result: dict[str, Any],
     ) -> Analysis:
-        weak = [topic for topic, score in result["topic_scores"].items() if score < 60]
-        strong = [topic for topic, score in result["topic_scores"].items() if score >= 75]
-        recommendations = [
-            {
-                "topic": topic,
-                "score": score,
-                "classification": "strong" if topic in strong else "weak" if topic in weak else "neutral",
-                "action": self._recommendation_action(topic, score),
-            }
-            for topic, score in result["topic_scores"].items()
-        ]
-        summary = (
-            f"Assessment score is {result['score']}%. "
-            f"Focus first on {', '.join(weak) if weak else 'mixed practice'}, "
-            f"then reinforce {', '.join(strong) if strong else 'core concepts'}."
-        )
-        analysis = Analysis(
-            session_id=session.id,
-            assessment_id=assessment.id,
-            summary=summary,
-            strengths_json=strong,
-            weaknesses_json=weak,
-            recommendations_json=recommendations,
-            score=result["score"],
-        )
-        db.add(analysis)
-        return analysis
+        # Use AI analysis service to create a richer, personalized analysis.
+        try:
+            questions = assessment.questions_json or []
+            answers = assessment.answers_json or []
+            ai_result = analyze_assessment(session.topic, questions, answers, result.get("score", 0.0))
+            strengths = ai_result.get("strengths", [])
+            weaknesses = ai_result.get("weaknesses", [])
+            review_topics = ai_result.get("review_topics", [])
+            confidence = ai_result.get("confidence_score", int(round(result.get("score", 0.0))))
+            recommended_mode = ai_result.get("recommended_learning_mode", "Mixed")
+            recommended_start = ai_result.get("recommended_start_topic") or (weaknesses[0] if weaknesses else None)
+            reasoning = ai_result.get("reasoning", "")
+
+            # Build recommendations array from topic_scores if available, fall back to AI lists
+            topic_scores = result.get("topic_scores", {})
+            recommendations = []
+            if topic_scores:
+                for topic, score_value in topic_scores.items():
+                    classification = "strong" if topic in strengths else ("weak" if topic in weaknesses else "neutral")
+                    recommendations.append({
+                        "topic": topic,
+                        "score": score_value,
+                        "classification": classification,
+                        "action": self._recommendation_action(topic, score_value),
+                    })
+            else:
+                # If no topic scores, synthesize from AI lists
+                for topic in strengths:
+                    recommendations.append({"topic": topic, "score": None, "classification": "strong", "action": self._recommendation_action(topic, 100)})
+                for topic in weaknesses:
+                    recommendations.append({"topic": topic, "score": None, "classification": "weak", "action": self._recommendation_action(topic, 0)})
+
+            summary = f"AI analysis: {reasoning}"
+
+            analysis = Analysis(
+                session_id=session.id,
+                assessment_id=assessment.id,
+                summary=summary,
+                strengths_json=strengths,
+                weaknesses_json=weaknesses,
+                recommendations_json=recommendations,
+                score=result.get("score", 0.0),
+            )
+            db.add(analysis)
+            return analysis
+        except Exception as e:
+            # If AI service fails for any reason, fall back to deterministic behavior
+            logging.exception("AI analysis failed, falling back to baseline analysis: %s", e)
+            weak = [topic for topic, score in result["topic_scores"].items() if score < 60]
+            strong = [topic for topic, score in result["topic_scores"].items() if score >= 75]
+            recommendations = [
+                {
+                    "topic": topic,
+                    "score": score,
+                    "classification": "strong" if topic in strong else "weak" if topic in weak else "neutral",
+                    "action": self._recommendation_action(topic, score),
+                }
+                for topic, score in result["topic_scores"].items()
+            ]
+            summary = (
+                f"Assessment score is {result['score']}%. "
+                f"Focus first on {', '.join(weak) if weak else 'mixed practice'}, "
+                f"then reinforce {', '.join(strong) if strong else 'core concepts'}."
+            )
+            analysis = Analysis(
+                session_id=session.id,
+                assessment_id=assessment.id,
+                summary=summary,
+                strengths_json=strong,
+                weaknesses_json=weak,
+                recommendations_json=recommendations,
+                score=result["score"],
+            )
+            db.add(analysis)
+            return analysis
 
     def _latest_analysis_payload(self, db: DbSession, session: Session) -> dict[str, Any]:
         analysis = (

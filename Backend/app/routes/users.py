@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models import User
 from app.schemas import UserCreate, UserRead
 from app.services.crud import CRUDService
+from app.services.auth import get_password_hash
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -22,7 +23,7 @@ def create_user(payload: UserCreate, db: DbSession = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=409, detail="Email already exists")
     data = payload.model_dump(exclude={"password"})
-    data["hashed_password"] = payload.password
+    data["hashed_password"] = get_password_hash(payload.password or "")
     user = User(**data)
     db.add(user)
     db.commit()
