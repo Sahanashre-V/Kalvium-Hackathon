@@ -8,7 +8,8 @@ import { useTopic } from '../context/TopicContext'
 import { useLearningMode } from '../context/LearningModeContext'
 import { MODE_META, PREFERENCE_OPTIONS, recommendLearningMode } from '../data/adaptiveLearning'
 import { getTopicStats } from '../data/learningData'
-import { getStoredAssessment } from '../utils/storage'
+import { getStoredAssessment, getStoredSessionId } from '../utils/storage'
+import { analysisAPI } from '../services/api'
 
 function ResultsPage() {
   const location = useLocation()
@@ -17,33 +18,71 @@ function ResultsPage() {
   const { currentMode, setCurrentMode, setRecommendedMode, recommendedMode, acceptRecommendedMode } =
     useLearningMode()
   const [isLoading, setIsLoading] = useState(true)
+  const [results, setResults] = useState(null)
 
   const stored = getStoredAssessment()
   const profile = useMemo(() => getTopicStats(selectedTopic), [selectedTopic])
-  const results = useMemo(
-    () =>
-      location.state || stored || {
-        topic: selectedTopic,
-        readiness: 74,
-        readinessLevel: profile.readinessLevel,
-        strengths: profile.strengths,
-        needsImprovement: profile.needsImprovement,
-        weakAreas: profile.weakAreas,
-      },
-    [location.state, stored, profile.needsImprovement, profile.readinessLevel, profile.strengths, profile.weakAreas, selectedTopic],
-  )
-  const recommendation = useMemo(() => recommendLearningMode(results), [results])
+  const sessionId = getStoredSessionId()
+
+  const recommendation = useMemo(() => {
+    if (!results) return {}
+    return recommendLearningMode(results)
+  }, [results])
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsLoading(false), 1200)
-    return () => window.clearTimeout(timer)
-  }, [selectedTopic])
+    const loadAnalysis = async () => {
+      try {
+        if (sessionId && !location.state) {
+          const response = await analysisAPI.get(sessionId)
+          const analysisResult = {
+            topic: selectedTopic,
+            readiness: response.score || 0,
+            readinessLevel: response.level || profile.readinessLevel,
+            strengths: response.strengths || profile.strengths,
+            needsImprovement: response.needs_improvement || profile.needsImprovement,
+            weakAreas: response.weak_areas || profile.weakAreas,
+          }
+          setResults(analysisResult)
+        } else {
+          const finalResults =
+            location.state || stored || {
+              topic: selectedTopic,
+              readiness: 74,
+              readinessLevel: profile.readinessLevel,
+              strengths: profile.strengths,
+              needsImprovement: profile.needsImprovement,
+              weakAreas: profile.weakAreas,
+            }
+          setResults(finalResults)
+        }
+      } catch (err) {
+        console.error('Failed to fetch analysis:', err)
+        const fallbackResults =
+          location.state || stored || {
+            topic: selectedTopic,
+            readiness: 74,
+            readinessLevel: profile.readinessLevel,
+            strengths: profile.strengths,
+            needsImprovement: profile.needsImprovement,
+            weakAreas: profile.weakAreas,
+          }
+        setResults(fallbackResults)
+      } finally {
+        const timer = window.setTimeout(() => setIsLoading(false), 1200)
+        return () => window.clearTimeout(timer)
+      }
+    }
+
+    loadAnalysis()
+  }, [selectedTopic, location.state, stored, profile, sessionId])
 
   useEffect(() => {
-    setRecommendedMode(recommendation.mode)
-  }, [recommendation.mode, setRecommendedMode])
+    if (results && recommendation.mode) {
+      setRecommendedMode(recommendation.mode)
+    }
+  }, [recommendation.mode, setRecommendedMode, results])
 
-  if (isLoading) {
+  if (isLoading || !results) {
     return (
       <AILoadingScreen
         title="Analyzing Your Knowledge..."

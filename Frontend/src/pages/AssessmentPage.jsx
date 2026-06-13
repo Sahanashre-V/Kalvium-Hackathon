@@ -6,7 +6,8 @@ import ProgressBar from '../components/ProgressBar'
 import PageHeader from '../components/PageHeader'
 import { useTopic } from '../context/TopicContext'
 import { getAssessmentQuestions, getTopicStats } from '../data/learningData'
-import { setStoredAssessment } from '../utils/storage'
+import { setStoredAssessment, getStoredSessionId, setStoredSessionId } from '../utils/storage'
+import { assessmentAPI } from '../services/api'
 
 function AssessmentPage() {
   const navigate = useNavigate()
@@ -15,11 +16,13 @@ function AssessmentPage() {
   const [answers, setAnswers] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [questions, setQuestions] = useState([])
+  const [sessionId, setSessionId] = useState(null)
+  const [assessmentId, setAssessmentId] = useState(null)
 
-  const questions = useMemo(() => getAssessmentQuestions(selectedTopic), [selectedTopic])
   const profile = useMemo(() => getTopicStats(selectedTopic), [selectedTopic])
   const currentQuestion = questions[currentIndex]
-  const progress = Math.round(((currentIndex + 1) / questions.length) * 100)
+  const progress = Math.round(((currentIndex + 1) / (questions.length || 1)) * 100)
 
   const selectedCount = useMemo(
     () => Object.values(answers).filter((value) => value !== undefined).length,
@@ -27,14 +30,50 @@ function AssessmentPage() {
   )
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsLoading(false), 1200)
-    return () => window.clearTimeout(timer)
+    const loadAssessment = async () => {
+      try {
+        let sid = getStoredSessionId()
+        if (!sid) {
+          sid = Math.floor(Math.random() * 1000000)
+          setStoredSessionId(sid)
+        }
+        setSessionId(sid)
+
+        try {
+          const response = await assessmentAPI.generate(sid)
+          setAssessmentId(response.assessment_id)
+          setQuestions(response.questions || getAssessmentQuestions(selectedTopic))
+        } catch (err) {
+          console.warn('Backend assessment failed, using local:', err)
+          setQuestions(getAssessmentQuestions(selectedTopic))
+        }
+      } finally {
+        const timer = window.setTimeout(() => setIsLoading(false), 1200)
+        return () => window.clearTimeout(timer)
+      }
+    }
+
+    loadAssessment()
   }, [selectedTopic])
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsAnalyzing(true)
 
-    window.setTimeout(() => {
+    try {
+      const response = await assessmentAPI.submit(sessionId, assessmentId, answers)
+      const result = {
+        topic: selectedTopic,
+        readiness: response.score || 0,
+        readinessLevel: response.level || profile.readinessLevel,
+        strengths: response.strengths || profile.strengths,
+        needsImprovement: response.needs_improvement || profile.needsImprovement,
+        weakAreas: response.weak_areas || profile.weakAreas,
+      }
+
+      setStoredAssessment(result)
+      navigate('/results', { state: result, replace: true })
+    } catch (err) {
+      console.error('Assessment submission failed:', err)
       const correctAnswers = questions.reduce(
         (count, question, index) => count + (answers[index] === question.correctIndex ? 1 : 0),
         0,
@@ -48,13 +87,12 @@ function AssessmentPage() {
         needsImprovement: profile.needsImprovement,
         weakAreas: profile.weakAreas,
       }
-
       setStoredAssessment(result)
-      navigate('/results', { state: result })
-    }, 1300)
+      navigate('/results', { state: result, replace: true })
+    }
   }
 
-  if (isLoading || isAnalyzing) {
+  if (isLoading || isAnalyzing || !currentQuestion) {
     return (
       <AILoadingScreen
         title={isAnalyzing ? 'Analyzing Your Knowledge...' : 'Generating Assessment...'}

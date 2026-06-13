@@ -1,6 +1,7 @@
 const KEYS = {
   assessment: 'learnanything-assessment',
   quiz: 'learnanything-quiz',
+  sessionId: 'learnanything-session-id',
 }
 
 export function readStoredJSON(key, fallback) {
@@ -33,4 +34,19 @@ export function getStoredQuiz() {
 
 export function setStoredQuiz(value) {
   writeStoredJSON(KEYS.quiz, value)
+}
+
+export function getStoredSessionId() {
+  return readStoredJSON(KEYS.sessionId, null)
+}
+
+export function setStoredSessionId(sessionId) {
+  writeStoredJSON(KEYS.sessionId, sessionId)
+}
+
+export function clearSession() {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(KEYS.assessment)
+  window.localStorage.removeItem(KEYS.quiz)
+  window.localStorage.removeItem(KEYS.sessionId)
 }

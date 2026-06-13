@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ClickCard from '../components/ClickCard'
 import ProgressBar from '../components/ProgressBar'
@@ -11,19 +12,49 @@ import { useTopic } from '../context/TopicContext'
 import { getRoadmapTopics, getTopicStats } from '../data/learningData'
 import { LEARNING_MODES, MODE_META, getLessonCompletionStats, getModeUsagePercentages } from '../data/adaptiveLearning'
 import { getLessonPath, getTopicFromTopicId } from '../data/topics'
-import { getStoredAssessment, getStoredQuiz } from '../utils/storage'
+import { getStoredAssessment, getStoredQuiz, getStoredSessionId } from '../utils/storage'
+import { dashboardAPI } from '../services/api'
 
 function DashboardPage() {
   const navigate = useNavigate()
   const { selectedTopic, selectedLesson } = useTopic()
   const { currentMode, modeUsage, modeProgress } = useLearningMode()
+  const [dashboardData, setDashboardData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
   const assessment = getStoredAssessment()
   const quiz = getStoredQuiz()
   const profile = getTopicStats(selectedTopic)
   const roadmap = getRoadmapTopics(selectedTopic)
-  const currentTopic = assessment?.topic || selectedTopic
-  const currentLesson = selectedLesson || quiz?.concept || roadmap.find((step) => step.status === 'Recommended')?.lessonId
-  const accuracy = quiz?.accuracy || assessment?.readiness || 86
+  const sessionId = getStoredSessionId()
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        if (sessionId) {
+          const response = await dashboardAPI.get(sessionId)
+          setDashboardData(response)
+        } else {
+          setDashboardData(null)
+        }
+      } catch (err) {
+        console.warn('Backend dashboard failed, using local:', err)
+        setDashboardData(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadDashboard()
+  }, [sessionId])
+
+  if (isLoading) {
+    return <div className="space-y-8 pb-8 pt-4"><PageHeader title="Loading..." /></div>
+  }
+
+  const currentTopic = dashboardData?.topic || assessment?.topic || selectedTopic
+  const currentLesson = selectedLesson || quiz?.concept || roadmap.find((step) => step.status === 'Recommended')?.id
+  const accuracy = dashboardData?.accuracy || quiz?.accuracy || assessment?.readiness || 86
   const completedTopics = roadmap.filter((step) => step.status === 'Completed').length
   const modeSummary = getLessonCompletionStats(modeProgress)
   const modeUsagePercentages = getModeUsagePercentages(modeUsage)

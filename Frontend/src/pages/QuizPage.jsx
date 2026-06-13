@@ -7,7 +7,8 @@ import PageHeader from '../components/PageHeader'
 import { useTopic } from '../context/TopicContext'
 import { getDefaultLessonForTopic, getLesson, getQuizSet } from '../data/learningData'
 import { getLessonPath } from '../data/topics'
-import { setStoredQuiz } from '../utils/storage'
+import { setStoredQuiz, getStoredSessionId } from '../utils/storage'
+import { quizAPI } from '../services/api'
 
 function QuizPage() {
   const navigate = useNavigate()
@@ -22,19 +23,50 @@ function QuizPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [completed, setCompleted] = useState(false)
   const [finalScore, setFinalScore] = useState(null)
+  const [quizzes, setQuizzes] = useState([])
+  const [sessionId, setSessionId] = useState(null)
+  const [quizId, setQuizId] = useState(null)
 
   const lessonId = selectedLesson || getDefaultLessonForTopic(selectedTopic)
   const lesson = getLesson(selectedTopic, lessonId)
   const quizUnlocked = isLessonCheckpointComplete(selectedTopic, lessonId)
-  const quizzes = useMemo(() => getQuizSet(selectedTopic, lessonId), [selectedTopic, lessonId])
   const question = quizzes[currentIndex]
   const hasAnswered = selectedIndex !== null
-  const isCorrect = hasAnswered && selectedIndex === question.correctIndex
+  const isCorrect = hasAnswered && selectedIndex === question?.correctIndex
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsLoading(false), 1200)
-    return () => window.clearTimeout(timer)
-  }, [lessonId, selectedTopic])
+    const loadQuiz = async () => {
+      const sid = getStoredSessionId()
+      setSessionId(sid)
+
+      try {
+        const response = await quizAPI.generate(sid, selectedTopic)
+        // Ensure we have at least 5 questions; fallback to local set if insufficient
+        const fetchedQuestions = response.questions || []
+        if (fetchedQuestions.length >= 5) {
+          setQuizzes(fetchedQuestions)
+        } else {
+          const localSet = getQuizSet(selectedTopic, lessonId)
+          // If local set also insufficient, repeat or truncate to available
+          const combined = fetchedQuestions.concat(localSet).slice(0, 5)
+          setQuizzes(combined)
+        }
+        setQuizId(response.quiz_id)
+      } catch (err) {
+        console.warn('Backend quiz failed, using local:', err)
+        setQuizzes(getQuizSet(selectedTopic, lessonId))
+      } finally {
+        const timer = window.setTimeout(() => setIsLoading(false), 1200)
+        return () => window.clearTimeout(timer)
+      }
+    }
+
+    if (quizUnlocked) {
+      loadQuiz()
+    } else {
+      setIsLoading(false)
+    }
+  }, [lessonId, selectedTopic, quizUnlocked])
 
   const onSelect = (index) => {
     if (hasAnswered) return
@@ -42,7 +74,7 @@ function QuizPage() {
     setAnswers((prev) => [...prev, index === question.correctIndex])
   }
 
-  const goNext = () => {
+  const goNext = async () => {
     if (currentIndex < quizzes.length - 1) {
       setCurrentIndex((value) => value + 1)
       setSelectedIndex(null)
@@ -51,6 +83,13 @@ function QuizPage() {
 
     const correctCount = answers.filter(Boolean).length
     const accuracy = Math.round((correctCount / quizzes.length) * 100)
+
+    try {
+      await quizAPI.submit(sessionId, quizId, answers)
+    } catch (err) {
+      console.warn('Failed to submit quiz to backend:', err)
+    }
+
     setStoredQuiz({
       concept: lessonId,
       accuracy,
@@ -59,6 +98,11 @@ function QuizPage() {
     })
     setFinalScore(accuracy)
     setCompleted(true)
+    // Auto‑navigate to dashboard after recording results
+    navigate('/dashboard', {
+      state: { concept: lessonId, accuracy },
+      replace: true,
+    })
   }
 
   if (isLoading) {
@@ -121,7 +165,7 @@ function QuizPage() {
           </div>
 
           <div className="mt-6 grid gap-3 md:grid-cols-3">
-            <Button onClick={() => navigate('/dashboard', { state: { concept: lessonId, accuracy: finalScore } })}>
+            <Button onClick={() => navigate('/dashboard', { state: { concept: lessonId, accuracy: finalScore }, replace: true })}>
               Go To Dashboard
             </Button>
             <Button variant="secondary" onClick={() => navigate(getLessonPath(selectedTopic, lessonId))}>
@@ -133,6 +177,16 @@ function QuizPage() {
           </div>
         </div>
       </div>
+    )
+  }
+
+  if (!question) {
+    return (
+      <AILoadingScreen
+        title="Loading Quiz..."
+        subtitle="Preparing your quiz experience."
+        steps={['Loading questions', 'Preparing interface', 'Starting quiz']}
+      />
     )
   }
 

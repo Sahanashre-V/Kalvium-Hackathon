@@ -8,28 +8,50 @@ import PageHeader from '../components/PageHeader'
 import { useTopic } from '../context/TopicContext'
 import { getRoadmapTopics } from '../data/learningData'
 import { getLessonPath } from '../data/topics'
+import { getStoredSessionId, getStoredAssessment } from '../utils/storage'
+import { roadmapAPI } from '../services/api'
 
 function RoadmapPage() {
   const navigate = useNavigate()
   const { selectedTopic, setSelectedLesson } = useTopic()
   const [isLoading, setIsLoading] = useState(true)
+  const [roadmap, setRoadmap] = useState([])
 
-  const roadmap = useMemo(() => getRoadmapTopics(selectedTopic), [selectedTopic])
-  const completedCount = roadmap.filter((step) => step.status === 'Completed').length
-  const completion = Math.round((completedCount / roadmap.length) * 100)
-  const recommended = roadmap.find((step) => step.status === 'Recommended') || roadmap[0]
+  const localRoadmap = useMemo(() => getRoadmapTopics(selectedTopic), [selectedTopic])
+  const sessionId = getStoredSessionId()
+  const assessment = getStoredAssessment()
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsLoading(false), 1200)
-    return () => window.clearTimeout(timer)
-  }, [selectedTopic])
+    const loadRoadmap = async () => {
+      try {
+        if (sessionId) {
+          const response = await roadmapAPI.generate(sessionId)
+          setRoadmap(response.roadmap || localRoadmap)
+        } else {
+          setRoadmap(localRoadmap)
+        }
+      } catch (err) {
+        console.warn('Backend roadmap failed, using local:', err)
+        setRoadmap(localRoadmap)
+      } finally {
+        const timer = window.setTimeout(() => setIsLoading(false), 1200)
+        return () => window.clearTimeout(timer)
+      }
+    }
+
+    loadRoadmap()
+  }, [selectedTopic, sessionId, assessment, localRoadmap])
+
+  const completedCount = roadmap.filter((step) => step.status === 'Completed').length
+  const completion = roadmap.length > 0 ? Math.round((completedCount / roadmap.length) * 100) : 0
+  const recommended = (roadmap.find((step) => step.status === 'Recommended') || roadmap[0]) || { id: '', title: 'Start' }
 
   const openLesson = (lessonId) => {
     setSelectedLesson(lessonId)
     navigate(getLessonPath(selectedTopic, lessonId))
   }
 
-  if (isLoading) {
+  if (isLoading || roadmap.length === 0) {
     return (
       <AILoadingScreen
         title="Creating Personalized Roadmap..."

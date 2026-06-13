@@ -6,6 +6,8 @@ import SectionTitle from '../components/SectionTitle'
 import TopicCard from '../components/TopicCard'
 import { useTopic } from '../context/TopicContext'
 import { TOPIC_OPTIONS } from '../data/topicMeta'
+import { topicAPI } from '../services/api'
+import { setStoredSessionId } from '../utils/storage'
 
 const exampleTopics = [
   { title: TOPIC_OPTIONS[0], description: 'Learn patterns, complexity, and problem solving.', status: 'Completed' },
@@ -41,16 +43,31 @@ function LandingPage() {
   const navigate = useNavigate()
   const { selectedTopic, setSelectedTopic } = useTopic()
   const [topic, setTopic] = useState(selectedTopic)
+  const [isLoading, setIsLoading] = useState(false)
 
   const pickTopic = (value) => {
     setTopic(value)
     setSelectedTopic(value)
   }
 
-  const startLearning = () => {
+  const startLearning = async () => {
     const resolvedTopic = TOPIC_OPTIONS.includes(topic.trim()) ? topic.trim() : selectedTopic
-    pickTopic(resolvedTopic || TOPIC_OPTIONS[0])
-    navigate('/assessment')
+    const finalTopic = resolvedTopic || TOPIC_OPTIONS[0]
+    pickTopic(finalTopic)
+
+    setIsLoading(true)
+    try {
+      const response = await topicAPI.select(finalTopic)
+      if (response.session_id) {
+        setStoredSessionId(response.session_id)
+      }
+      navigate('/assessment')
+    } catch (error) {
+      console.error('Failed to select topic:', error)
+      navigate('/assessment')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -91,8 +108,8 @@ function LandingPage() {
                 placeholder="Try DSA, React, Machine Learning..."
                 className="h-14 w-full rounded-2xl border border-white/10 bg-slate-950/30 px-4 text-white placeholder:text-slate-500 focus:border-cyan-300/40 focus:outline-none"
               />
-              <Button onClick={startLearning} size="lg" className="sm:min-w-48">
-                Start Learning
+              <Button onClick={startLearning} size="lg" className="sm:min-w-48" disabled={isLoading}>
+                {isLoading ? 'Starting...' : 'Start Learning'}
               </Button>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">

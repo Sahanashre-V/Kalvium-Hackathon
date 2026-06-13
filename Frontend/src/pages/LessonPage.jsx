@@ -13,6 +13,8 @@ import { getLessonLearningPackage, MODE_META } from '../data/adaptiveLearning'
 import { getLesson, getTopicLessonOrderForTopic } from '../data/learningData'
 import { getLessonPath, getTopicFromTopicId } from '../data/topics'
 import { getWatchThumbnailUrl, getWatchVideoEmbedUrl } from '../data/watchVideos'
+import { getStoredSessionId } from '../utils/storage'
+import { lessonAPI } from '../services/api'
 
 const SECTION_ORDER = [
   { key: 'whatIs', title: 'What Is This Concept?' },
@@ -43,17 +45,46 @@ function LessonPage() {
     markWatchedVideo,
   } = useLearningMode()
 
+  const [lesson, setLesson] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
   const routeTopic = getTopicFromTopicId(topicId)
   const lessonOrder = useMemo(() => getTopicLessonOrderForTopic(routeTopic), [routeTopic])
   const requestedLessonId = lessonId || selectedLesson
   const activeLessonId = lessonOrder.includes(requestedLessonId) ? requestedLessonId : lessonOrder[0]
-  const lesson = useMemo(() => getLesson(routeTopic, activeLessonId), [routeTopic, activeLessonId])
+  const sessionId = getStoredSessionId()
   const learningPackage = useMemo(
-    () => getLessonLearningPackage(routeTopic, activeLessonId),
-    [routeTopic, activeLessonId],
+    () => lesson ? getLessonLearningPackage(routeTopic, activeLessonId) : {},
+    [routeTopic, activeLessonId, lesson],
   )
   const lessonIndex = Math.max(0, lessonOrder.indexOf(activeLessonId))
   const lessonPositionLabel = `${lessonIndex + 1} of ${lessonOrder.length}`
+
+  useEffect(() => {
+    const loadLesson = async () => {
+      try {
+        const response = await lessonAPI.get(routeTopic, sessionId)
+        setLesson(response.lesson || getLesson(routeTopic, activeLessonId))
+      } catch (err) {
+        console.warn('Backend lesson failed, using local:', err)
+        setLesson(getLesson(routeTopic, activeLessonId))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadLesson()
+  }, [routeTopic, activeLessonId, sessionId])
+
+  if (isLoading || !lesson) {
+    return (
+      <AILoadingScreen
+        title="Loading Lesson..."
+        subtitle={`Preparing content for ${activeLessonId}.`}
+        steps={['Loading content', 'Formatting sections', 'Ready to learn']}
+      />
+    )
+  }
 
   return (
     <div className="space-y-6 pb-8 pt-4">
