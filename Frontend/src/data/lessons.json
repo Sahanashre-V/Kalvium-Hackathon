@@ -1,0 +1,274 @@
+{
+  "arrays": {
+    "id": "arrays",
+    "title": "Arrays",
+    "duration": "10 min",
+    "explanation": "Arrays store items in contiguous memory, which makes indexing fast and predictable.",
+    "analogy": "Think of an array like seats in a movie hall. Each seat has a fixed number, so you can go straight to the exact spot.",
+    "example": {
+      "title": "Index lookup",
+      "snippet": "values = [4, 7, 2, 9]\nvalues[2] -> 2"
+    },
+    "takeaways": [
+      "Index access is constant time.",
+      "Traversal is simple and predictable.",
+      "Common foundation for most DSA problems."
+    ]
+  },
+  "linked-lists": {
+    "id": "linked-lists",
+    "title": "Linked Lists",
+    "duration": "12 min",
+    "explanation": "Linked lists chain nodes together using references instead of storing items next to each other.",
+    "analogy": "Imagine stepping stones where each stone points you to the next one instead of all stones sitting in a row.",
+    "example": {
+      "title": "Node chain",
+      "snippet": "A -> B -> C -> null"
+    },
+    "takeaways": [
+      "Insertions can be efficient when you already know the spot.",
+      "Traversal is sequential.",
+      "Pointers matter more than indexes."
+    ]
+  },
+  "recursion": {
+    "id": "recursion",
+    "title": "Recursion",
+    "duration": "11 min",
+    "explanation": "Recursion solves a problem by calling the same function on smaller inputs until a base case is reached.",
+    "analogy": "Like nesting dolls, each smaller version gets opened until you reach the last one.",
+    "example": {
+      "title": "Factorial",
+      "snippet": "fact(n) = n * fact(n - 1)\nfact(1) = 1"
+    },
+    "takeaways": [
+      "Always define a base case.",
+      "Understand the call stack.",
+      "Small subproblems are the key to recursive thinking."
+    ]
+  },
+  "prefix-sum": {
+    "id": "prefix-sum",
+    "title": "Prefix Sum",
+    "duration": "12 min",
+    "explanation": "Prefix sums store running totals so range queries become fast and reliable.",
+    "analogy": "It is like reading a meter at checkpoints instead of recounting every step from the beginning.",
+    "example": {
+      "title": "Range sum",
+      "snippet": "array = [2, 1, 3, 4]\nprefix = [2, 3, 6, 10]\nrange(1, 3) = 10 - 2 = 8"
+    },
+    "takeaways": [
+      "Build the prefix array in one pass.",
+      "Answer range sum queries in O(1).",
+      "Pairs well with sliding window problems."
+    ]
+  },
+  "dynamic-programming": {
+    "id": "dynamic-programming",
+    "title": "Dynamic Programming",
+    "duration": "15 min",
+    "explanation": "Dynamic programming stores answers to subproblems so repeated work is avoided.",
+    "analogy": "It is like saving a recipe step after step so you do not have to restart from scratch every time.",
+    "example": {
+      "title": "Memoization",
+      "snippet": "solve(n) = solve(n - 1) + solve(n - 2)"
+    },
+    "takeaways": [
+      "Look for overlapping subproblems.",
+      "Memoization and tabulation are both useful.",
+      "State definition matters most."
+    ]
+  },
+  "graphs": {
+    "id": "graphs",
+    "title": "Graphs",
+    "duration": "14 min",
+    "explanation": "Graphs model entities and relationships, which makes them ideal for networks, paths, and dependencies.",
+    "analogy": "Think of city maps with intersections and roads connecting them.",
+    "example": {
+      "title": "Adjacency list",
+      "snippet": "A: B, C\nB: D\nC: D"
+    },
+    "takeaways": [
+      "Use BFS for level-by-level traversal.",
+      "Use DFS for depth exploration.",
+      "Represent networks with nodes and edges."
+    ]
+  },
+  "jsx": {
+    "id": "jsx",
+    "title": "JSX",
+    "duration": "9 min",
+    "explanation": "JSX lets you describe UI with HTML-like syntax inside JavaScript.",
+    "analogy": "It is like sketching the page layout in the same notebook where the logic lives.",
+    "example": {
+      "title": "Simple JSX",
+      "snippet": "<button>Hello UI</button>"
+    },
+    "takeaways": [
+      "JSX compiles to React elements.",
+      "Use curly braces for dynamic expressions.",
+      "Keeps UI code readable."
+    ]
+  },
+  "components": {
+    "id": "components",
+    "title": "Components",
+    "duration": "10 min",
+    "explanation": "Components are reusable pieces of UI and logic that keep large apps maintainable.",
+    "analogy": "Like Lego blocks, components can be assembled into bigger structures.",
+    "example": {
+      "title": "Reusable card",
+      "snippet": "<TopicCard title=\"React\" />"
+    },
+    "takeaways": [
+      "Break UI into reusable pieces.",
+      "Pass data with props.",
+      "Composition keeps code scalable."
+    ]
+  },
+  "state": {
+    "id": "state",
+    "title": "State",
+    "duration": "11 min",
+    "explanation": "State stores changing values that drive interface updates.",
+    "analogy": "It is like a dashboard gauge that updates whenever new information arrives.",
+    "example": {
+      "title": "Hook state",
+      "snippet": "const [count, setCount] = useState(0)"
+    },
+    "takeaways": [
+      "State changes trigger re-renders.",
+      "Keep state as local as possible.",
+      "Derive UI from data instead of manual DOM updates."
+    ]
+  },
+  "hooks": {
+    "id": "hooks",
+    "title": "Hooks",
+    "duration": "12 min",
+    "explanation": "Hooks connect React features like state and lifecycle to function components.",
+    "analogy": "Think of hooks as plug-in ports that attach behavior to a component.",
+    "example": {
+      "title": "Effect hook",
+      "snippet": "useEffect(() => {\n  // side effect\n}, [])"
+    },
+    "takeaways": [
+      "Hooks start with `use`.",
+      "Follow the rules of hooks.",
+      "Use them to keep components lean."
+    ]
+  },
+  "regression": {
+    "id": "regression",
+    "title": "Regression",
+    "duration": "10 min",
+    "explanation": "Regression predicts continuous values like prices or temperatures.",
+    "analogy": "Like estimating home value from size, location, and condition.",
+    "example": {
+      "title": "Prediction",
+      "snippet": "price = model(features)"
+    },
+    "takeaways": [
+      "Use regression for continuous targets.",
+      "Evaluate with error-based metrics.",
+      "Feature quality strongly affects accuracy."
+    ]
+  },
+  "classification": {
+    "id": "classification",
+    "title": "Classification",
+    "duration": "10 min",
+    "explanation": "Classification assigns input examples to discrete categories.",
+    "analogy": "Like sorting emails into spam and not-spam.",
+    "example": {
+      "title": "Binary class",
+      "snippet": "label = spam | not spam"
+    },
+    "takeaways": [
+      "Useful for category prediction.",
+      "Focus on precision, recall, and F1.",
+      "Decision boundaries matter."
+    ]
+  },
+  "overfitting": {
+    "id": "overfitting",
+    "title": "Overfitting",
+    "duration": "9 min",
+    "explanation": "Overfitting happens when a model learns the training data too well and struggles to generalize.",
+    "analogy": "It is like memorizing answers without understanding the subject.",
+    "example": {
+      "title": "Generalization",
+      "snippet": "train_accuracy > test_accuracy"
+    },
+    "takeaways": [
+      "Watch the train-test gap.",
+      "Regularization can help.",
+      "More data often improves generalization."
+    ]
+  },
+  "scalability": {
+    "id": "scalability",
+    "title": "Scalability",
+    "duration": "12 min",
+    "explanation": "Scalability is the ability of a system to handle growth without breaking down.",
+    "analogy": "A store adding more checkout counters when customers increase.",
+    "example": {
+      "title": "Growth planning",
+      "snippet": "users -> load balancer -> services"
+    },
+    "takeaways": [
+      "Plan for growth early.",
+      "Measure bottlenecks.",
+      "Scale horizontally when useful."
+    ]
+  },
+  "load-balancing": {
+    "id": "load-balancing",
+    "title": "Load Balancing",
+    "duration": "10 min",
+    "explanation": "Load balancing spreads traffic across multiple servers so no single instance becomes overloaded.",
+    "analogy": "Like a traffic controller directing cars to less crowded lanes.",
+    "example": {
+      "title": "Distribution",
+      "snippet": "client -> balancer -> server A / server B"
+    },
+    "takeaways": [
+      "Improves resilience and availability.",
+      "Helps distribute load evenly.",
+      "Often paired with health checks."
+    ]
+  },
+  "caching": {
+    "id": "caching",
+    "title": "Caching",
+    "duration": "10 min",
+    "explanation": "Caching stores frequently used data so future access is faster.",
+    "analogy": "Like keeping frequently used tools on your desk instead of walking to the storeroom every time.",
+    "example": {
+      "title": "Cache flow",
+      "snippet": "request -> cache hit / cache miss -> data source"
+    },
+    "takeaways": [
+      "Reduces repeated work.",
+      "Improves latency for repeated reads.",
+      "Cache invalidation is a key trade-off."
+    ]
+  },
+  "consistency": {
+    "id": "consistency",
+    "title": "Consistency",
+    "duration": "11 min",
+    "explanation": "Consistency describes how system replicas agree on the same data at a point in time.",
+    "analogy": "Like making sure every branch office sees the same updated price list.",
+    "example": {
+      "title": "Distributed state",
+      "snippet": "write -> sync -> read"
+    },
+    "takeaways": [
+      "Understand eventual vs strong consistency.",
+      "There are trade-offs with latency and availability.",
+      "Distributed systems need clear consistency rules."
+    ]
+  }
+}

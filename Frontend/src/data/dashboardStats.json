@@ -1,0 +1,20 @@
+{
+  "progress": 78,
+  "recentActivity": [
+    {
+      "label": "Reviewed Recursion checkpoint",
+      "topicId": "dsa",
+      "lessonId": "recursion"
+    },
+    {
+      "label": "Completed Prefix Sum quiz",
+      "topicId": "dsa",
+      "lessonId": "prefix-sum"
+    },
+    {
+      "label": "Updated roadmap after assessment",
+      "topicId": "dsa",
+      "lessonId": "arrays"
+    }
+  ]
+}

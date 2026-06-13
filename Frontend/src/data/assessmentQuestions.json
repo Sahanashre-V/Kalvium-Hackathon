@@ -1,0 +1,82 @@
+{
+  "DSA": [
+    {
+      "id": 1,
+      "question": "What is the time complexity of binary search?",
+      "options": ["O(n)", "O(log n)", "O(n log n)", "O(1)"],
+      "correctIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "Which data structure is best suited for recursion?",
+      "options": ["Queue", "Stack", "Heap", "Graph"],
+      "correctIndex": 1
+    },
+    {
+      "id": 3,
+      "question": "Which technique answers range queries efficiently after preprocessing?",
+      "options": ["Prefix Sum", "Backtracking", "Merge Sort", "Hashing"],
+      "correctIndex": 0
+    }
+  ],
+  "React": [
+    {
+      "id": 1,
+      "question": "What does JSX allow developers to write?",
+      "options": ["SQL queries", "HTML-like syntax in JavaScript", "Server-only code", "CSS modules"],
+      "correctIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "Which hook is used to manage state in a functional component?",
+      "options": ["useMemo", "useState", "useRef", "useCallback"],
+      "correctIndex": 1
+    },
+    {
+      "id": 3,
+      "question": "What is a React component?",
+      "options": ["A database table", "A reusable UI building block", "A CSS selector", "A build tool"],
+      "correctIndex": 1
+    }
+  ],
+  "Machine Learning": [
+    {
+      "id": 1,
+      "question": "Which task predicts continuous values?",
+      "options": ["Classification", "Regression", "Clustering", "Tokenization"],
+      "correctIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "What happens when a model learns noise too well?",
+      "options": ["Overfitting", "Underfitting", "Normalization", "Encoding"],
+      "correctIndex": 0
+    },
+    {
+      "id": 3,
+      "question": "Which metric is commonly used for classification accuracy?",
+      "options": ["Precision/Recall", "Mean Squared Error", "R-Squared", "Lossless compression"],
+      "correctIndex": 0
+    }
+  ],
+  "System Design": [
+    {
+      "id": 1,
+      "question": "What pattern helps distribute traffic across multiple servers?",
+      "options": ["Caching", "Load Balancing", "Batching", "Pagination"],
+      "correctIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "What is the main benefit of caching?",
+      "options": ["Increase latency", "Reduce repeated computation", "Remove databases", "Replace APIs"],
+      "correctIndex": 1
+    },
+    {
+      "id": 3,
+      "question": "Which attribute matters most when designing for scale?",
+      "options": ["Scalability", "Font size", "Animation speed", "Color palette"],
+      "correctIndex": 0
+    }
+  ]
+}

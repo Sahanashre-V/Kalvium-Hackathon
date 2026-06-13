@@ -1,0 +1,54 @@
+{
+  "prefix-sum": [
+    {
+      "id": 1,
+      "question": "What does a prefix sum array store?",
+      "options": ["Sorted values", "Running totals", "Unique keys", "Graph nodes"],
+      "correctIndex": 1,
+      "explanation": "Prefix sums store cumulative totals so range calculations can be answered quickly."
+    },
+    {
+      "id": 2,
+      "question": "What is the main benefit of prefix sums?",
+      "options": ["Smaller memory than arrays", "Constant-time range queries", "Eliminating recursion", "Sorting faster"],
+      "correctIndex": 1,
+      "explanation": "Once preprocessing is done, range sums are computed with subtraction instead of looping."
+    }
+  ],
+  "arrays": [
+    {
+      "id": 1,
+      "question": "What does an array provide?",
+      "options": ["Direct indexed access", "Automatic sorting", "Linked pointers", "Tree traversal"],
+      "correctIndex": 0,
+      "explanation": "Arrays provide direct access by index, which makes lookups fast."
+    }
+  ],
+  "jsx": [
+    {
+      "id": 1,
+      "question": "What does JSX let you describe?",
+      "options": ["Database tables", "UI structure", "HTTP headers", "CSS keyframes"],
+      "correctIndex": 1,
+      "explanation": "JSX lets you express UI markup in JavaScript."
+    }
+  ],
+  "regression": [
+    {
+      "id": 1,
+      "question": "Which kind of target does regression predict?",
+      "options": ["Discrete labels", "Continuous values", "Image pixels", "Graph edges"],
+      "correctIndex": 1,
+      "explanation": "Regression is used when the output is continuous, such as price or temperature."
+    }
+  ],
+  "scalability": [
+    {
+      "id": 1,
+      "question": "What does scalability describe?",
+      "options": ["More colors", "Handling growth", "Reducing scope", "Adding animations"],
+      "correctIndex": 1,
+      "explanation": "Scalability measures how well a system handles increased load."
+    }
+  ]
+}

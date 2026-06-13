@@ -1,0 +1,143 @@
+{
+  "DSA": [
+    {
+      "id": "arrays",
+      "title": "Arrays",
+      "status": "Completed",
+      "description": "Get comfortable with indexing, iteration, and traversal patterns.",
+      "lessonId": "arrays"
+    },
+    {
+      "id": "linked-lists",
+      "title": "Linked Lists",
+      "status": "Completed",
+      "description": "Understand node references and pointer updates with confidence.",
+      "lessonId": "linked-lists"
+    },
+    {
+      "id": "recursion",
+      "title": "Recursion",
+      "status": "Review",
+      "description": "Strengthen base cases and recursive call patterns before trees.",
+      "lessonId": "recursion"
+    },
+    {
+      "id": "prefix-sum",
+      "title": "Prefix Sum",
+      "status": "Recommended",
+      "description": "Use running totals to answer range queries quickly.",
+      "lessonId": "prefix-sum"
+    },
+    {
+      "id": "dynamic-programming",
+      "title": "Dynamic Programming",
+      "status": "Gap",
+      "description": "Turn overlapping subproblems into efficient solutions.",
+      "lessonId": "dynamic-programming"
+    },
+    {
+      "id": "graphs",
+      "title": "Graphs",
+      "status": "Gap",
+      "description": "Model relationships and traversal strategies across connected data.",
+      "lessonId": "graphs"
+    }
+  ],
+  "React": [
+    {
+      "id": "jsx",
+      "title": "JSX",
+      "status": "Completed",
+      "description": "Write expressive UI declarations that compile down to React elements.",
+      "lessonId": "jsx"
+    },
+    {
+      "id": "components",
+      "title": "Components",
+      "status": "Completed",
+      "description": "Break interfaces into reusable, composable building blocks.",
+      "lessonId": "components"
+    },
+    {
+      "id": "state",
+      "title": "State",
+      "status": "Review",
+      "description": "Understand how UI updates when data changes.",
+      "lessonId": "state"
+    },
+    {
+      "id": "hooks",
+      "title": "Hooks",
+      "status": "Recommended",
+      "description": "Use hooks to connect logic to component lifecycles.",
+      "lessonId": "hooks"
+    },
+    {
+      "id": "performance",
+      "title": "Performance Patterns",
+      "status": "Gap",
+      "description": "Avoid wasted renders and keep interfaces responsive.",
+      "lessonId": "performance"
+    }
+  ],
+  "Machine Learning": [
+    {
+      "id": "regression",
+      "title": "Regression",
+      "status": "Completed",
+      "description": "Predict continuous values from examples and features.",
+      "lessonId": "regression"
+    },
+    {
+      "id": "classification",
+      "title": "Classification",
+      "status": "Review",
+      "description": "Predict categories and evaluate probabilistic outputs.",
+      "lessonId": "classification"
+    },
+    {
+      "id": "overfitting",
+      "title": "Overfitting",
+      "status": "Gap",
+      "description": "Recognize when a model memorizes instead of generalizing.",
+      "lessonId": "overfitting"
+    },
+    {
+      "id": "feature-engineering",
+      "title": "Feature Engineering",
+      "status": "Recommended",
+      "description": "Shape better input signals for stronger model performance.",
+      "lessonId": "feature-engineering"
+    }
+  ],
+  "System Design": [
+    {
+      "id": "scalability",
+      "title": "Scalability",
+      "status": "Completed",
+      "description": "Design systems that stay reliable as traffic grows.",
+      "lessonId": "scalability"
+    },
+    {
+      "id": "load-balancing",
+      "title": "Load Balancing",
+      "status": "Review",
+      "description": "Distribute requests evenly to keep systems stable.",
+      "lessonId": "load-balancing"
+    },
+    {
+      "id": "caching",
+      "title": "Caching",
+      "status": "Recommended",
+      "description": "Reduce latency and repeated work with smart data reuse.",
+      "lessonId": "caching"
+    },
+    {
+      "id": "consistency",
+      "title": "Consistency",
+      "status": "Gap",
+      "description": "Understand trade-offs across distributed components.",
+      "lessonId": "consistency"
+    }
+  ]
+}
