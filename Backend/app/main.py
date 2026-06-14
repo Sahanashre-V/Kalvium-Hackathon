@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import os
 
 from app import models
 from app.database import Base, engine
@@ -27,8 +28,14 @@ app = FastAPI(
 # Allow frontend dev server origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"],
-    allow_credentials=True,
+    # `ALLOWED_ORIGINS` env var may be a comma-separated list or "*" to allow all.
+    # Example: ALLOWED_ORIGINS=https://your-frontend.netlify.app,https://app.example.com
+    allow_origins=(lambda: (
+        ["*"] if os.getenv("ALLOWED_ORIGINS", "").strip() == "*"
+        else [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000").split(",") if o.strip()]
+    ))(),
+    # When allow_origins is wildcard, disallow credentials to avoid browser restrictions.
+    allow_credentials=(False if os.getenv("ALLOWED_ORIGINS", "").strip() == "*" else True),
     allow_methods=["*"],
     allow_headers=["*"],
 )

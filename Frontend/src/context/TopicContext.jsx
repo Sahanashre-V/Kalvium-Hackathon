@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { DEFAULT_TOPIC, SLUG_TO_TOPIC, TOPIC_OPTIONS, TOPIC_TO_DEFAULT_LESSON } from '../data/topicMeta'
 import { getTopicLessonOrderForTopic } from '../data/learningData'
 import { useAuth } from './AuthContext'
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://kalvium-hackathon-rhml.onrender.com'
 
 const TopicContext = createContext(null)
 
@@ -99,7 +100,7 @@ export function TopicProvider({ children }) {
   const startSession = async (topic, goal = '') => {
     const payload = { topic, goal }
     const headers = { 'Content-Type': 'application/json', ...(token ? authHeader() : {}) }
-    const res = await fetch('/api/topic/select', {
+    const res = await fetch(`${API_BASE}/api/topic/select`, {
       method: 'POST',
       headers,
       body: JSON.stringify(payload),

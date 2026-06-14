@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 const AuthContext = createContext(null)
 const TOKEN_KEY = 'learnanything.token'
 const USER_KEY = 'learnanything.user'
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://kalvium-hackathon-rhml.onrender.com'
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => {
@@ -36,7 +37,7 @@ export function AuthProvider({ children }) {
   }, [user])
 
   const login = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -51,7 +52,7 @@ export function AuthProvider({ children }) {
   }
 
   const signup = async (name, email, password) => {
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch(`${API_BASE}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
