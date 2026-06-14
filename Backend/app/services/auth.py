@@ -23,7 +23,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440
 
 def get_password_hash(password: str) -> str:
     if _HAS_PASSLIB and PWD_CONTEXT is not None:
-        return PWD_CONTEXT.hash(password)
+        try:
+            return PWD_CONTEXT.hash(password)
+        except Exception:
+            # if passlib or its backend fails for any reason, fall back to PBKDF2
+            pass
     # fallback: PBKDF2-HMAC-SHA256
     salt = secrets.token_hex(16)
     iterations = 100_000
